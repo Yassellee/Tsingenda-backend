@@ -13,7 +13,7 @@ class OCRExtractor:
         """initialize OCR reader
 
         Args:
-            gpu_state (bool, optional): whether or not to use GPU.
+            gpu_state (bool, optional): whether to use GPU or not.
             Defaults to False.
         """
         self.reader = easyocr.Reader(['ch_sim','en'], gpu=gpu_state)
