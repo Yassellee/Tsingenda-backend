@@ -96,7 +96,3 @@ class OCRExtractor:
         print("\nextracting text from multiple images, trying test1_CET and test2_PCR\n")
         print(self.extract_multiple_images([os.path.join(test_ocr, "test1_CET.png"), os.path.join(test_ocr, "test2_PCR.png")]))
         print("\ndemo finished\n")
-
-
-test_OCR = OCRExtractor()
-test_OCR.demo()

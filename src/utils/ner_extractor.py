@@ -1,5 +1,5 @@
 import hanlp
-from typing import Mapping, Tuple, Union, List
+from typing import Tuple, Union, List
 from datetimefinder import DateTimeFinder
 
 
@@ -9,10 +9,7 @@ DATE = ["DATE"]
 
 TIME = ["TIME"]
 
-
-# HanLP = hanlp.load(hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH)
-
-class Extractor:
+class NERExtractor:
     def __init__(self) -> None:
         self.hanlp = hanlp.load(hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH)
         self.datefinder = DateTimeFinder()
@@ -38,7 +35,6 @@ class Extractor:
                 date_info.append(entity)
         
         date_info = self.get_continuous_list(date_info)
-        # time_info = self.get_continuous_list(time_info)
         time_info = [item[0] for item in time_info]
         location_info = self.get_continuous_list(location_info)
         
@@ -75,13 +71,3 @@ class Extractor:
         res_list.append(p_word)
         
         return res_list
-
-
-if __name__ == "__main__":
-    instances = [
-        "二零一八年十月六日，小明参观了清华科技园，然后去清芬园吃了中午饭，那是在9点二十分。",
-        "2021年HanLPv2.1为生产环境带来次世代最先进的多语种NLP技术。阿婆主来到北京立方庭参观自然语义科技公司。",
-        "他一直在清华学堂卷到了晚上10点"
-    ]
-    extractor = Extractor()
-    print(extractor.parse(instances))
