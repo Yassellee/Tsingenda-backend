@@ -1,3 +1,0 @@
-[submodule "ERNIE"]
-	path = ERNIE
-	url = git@github.com:PaddlePaddle/ERNIE.git
