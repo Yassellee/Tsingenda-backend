@@ -1,9 +1,8 @@
 import paddlenlp as ppnlp
-import paddle, functools
+import paddle, functools, numpy
 import os
 import time
 import paddle.nn.functional as F
-from paddlenlp.metrics import AccuracyAndF1, Mcc, PearsonAndSpearman
 
 # configuration
 raw_data_path = os.path.join(os.getcwd(), "../../data/Classifier/raw_data/raw_data.txt")
@@ -16,58 +15,55 @@ global_step = 0
 
 
 @paddle.no_grad()
-def evaluate(model, loss_fct, metric, data_loader):
+def evaluate(model, criterion, metric, data_loader):
     model.eval()
     metric.reset()
+    losses = []
     for batch in data_loader:
-        input_ids, segment_ids, labels = batch
-        logits = model(input_ids, segment_ids)
-        loss = loss_fct(logits, labels)
+        input_ids, token_type_ids, labels = batch['input_ids'], batch['token_type_ids'], batch['labels']
+
+        logits = model(input_ids, token_type_ids)
+        loss = criterion(logits, labels)
+        losses.append(loss.numpy())
         correct = metric.compute(logits, labels)
         metric.update(correct)
-    res = metric.accumulate()
-    if isinstance(metric, AccuracyAndF1):
-        print(
-            "eval loss: %f, acc: %s, precision: %s, recall: %s, f1: %s, acc and f1: %s, "
-            % (
-                loss.numpy(),
-                res[0],
-                res[1],
-                res[2],
-                res[3],
-                res[4],
-            ),
-            end='')
-    elif isinstance(metric, Mcc):
-        print("eval loss: %f, mcc: %s, " % (loss.numpy(), res[0]), end='')
-    elif isinstance(metric, PearsonAndSpearman):
-        print(
-            "eval loss: %f, pearson: %s, spearman: %s, pearson and spearman: %s, "
-            % (loss.numpy(), res[0], res[1], res[2]),
-            end='')
-    else:
-        print("eval loss: %f, acc: %s, " % (loss.numpy(), res), end='')
+        
+    accu = metric.accumulate()
+    print("eval loss: %.5f, accuracy: %.5f" % (numpy.mean(losses), accu))
     model.train()
-    return res
+    metric.reset()
+    return accu
 
 
 def train():
     def read_data(data_path):
         with open(data_path, 'r', encoding='utf-8') as f:
             lines = f.readlines()
+            cnt = 0
             for line in lines:
                 text, label = line.strip().split('==')
-                yield {"text": text, "label": label}
+                yield {"text": text, "label": label, "qid": cnt}
+                cnt += 1
 
     # function to convert data to dataset
     train_dataset, dev_dataset = ppnlp.datasets.load_dataset(
         read_data, data_files = raw_data_path, splits=('train', 'dev'), lazy=False)
 
     # define model
-    model = ppnlp.transformers.AutoModelForSequenceClassification.from_pretrained(model_name, num_classes=2)
+    # if model does not exist, it will be downloaded automatically
+    # else, it will be loaded from local
+    if not os.path.exists(ckpt_dir):
+        model = ppnlp.transformers.AutoModelForSequenceClassification.from_pretrained(model_name, num_classes=2)
+    else:
+        model = ppnlp.transformers.AutoModelForSequenceClassification.from_pretrained(ckpt_dir)
 
     # define tokenizer
-    tokenizer = ppnlp.transformers.AutoTokenizer.from_pretrained(model_name)
+    # if tokenizer does not exist, it will be downloaded automatically
+    # else, it will be loaded from local
+    if not os.path.exists(ckpt_dir):
+        tokenizer = ppnlp.transformers.AutoTokenizer.from_pretrained(model_name)
+    else:
+        tokenizer = ppnlp.transformers.AutoTokenizer.from_pretrained(ckpt_dir)
 
     # define data collator
     def data_preprocessor(examples, tokenizer, max_seq_length, is_test=False):
