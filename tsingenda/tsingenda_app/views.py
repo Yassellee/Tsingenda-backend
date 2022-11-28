@@ -53,23 +53,34 @@ def login(request):
         elif action == 'register':
             username = data['username']
             password = data['password']
-            django_user = User_django.objects.create_user(
-                username=username,
-                password=password,
-                is_superuser=False,
-                is_active=True,
-            )
-            user = User.objects.create(
-                name=username,
-                django_user=django_user,
-            )
-            return gen_response(
-                200,
-                {}
-            )
+            try:
+                User_django.objects.get(username=username)
+            except:
+                django_user = User_django.objects.create_user(
+                    username=username,
+                    password=password,
+                    is_superuser=False,
+                    is_active=True,
+                )
+                user = User.objects.create(
+                    name=username,
+                    django_user=django_user,
+                )
+                return gen_response(
+                    200,
+                    {}
+                )
+            else:
+                return gen_response(
+                    200,
+                    {
+                        'status': 'register_error',
+                        'detail': 'user already exists'
+                    }
+                )
         elif action == 'change_password':
             username = data['username']
-            old_password = data['old_password']
+            # old_password = data['old_password']
             new_password = data['new_password']
             try:
                 user = User.objects.get(name=username)
@@ -82,8 +93,8 @@ def login(request):
                     }
                 )
             django_user = user.django_user
-            if check_password(old_password, django_user.password):
-                user.django_user.set_password(new_password)
+            # if check_password(old_password, django_user.password):
+            user.django_user.set_password(new_password)
 
 
         elif action == 'logout':
