@@ -17,9 +17,8 @@ def login(request):
             'status': 'request_error',
             'detail': 'invalid method get'
         })
-    body = json.loads(request.body)
+    data = {'action':request.POST.get("action"),'username':request.POST.get("username"),'password':request.POST.get("password"),'old_password':request.POST.get("old_password"),'new_password':request.POST.get("new_password")}
     try:   
-        data = body['data']
         action = data['action']
         if action == 'login':
             username = data['username']
