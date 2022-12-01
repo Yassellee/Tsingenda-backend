@@ -95,7 +95,10 @@ def login(request):
             django_user = user.django_user
             # if check_password(old_password, django_user.password):
             user.django_user.set_password(new_password)
-
+            return gen_response(
+                    200,
+                    {}
+            )
 
         elif action == 'logout':
             username = data['username']
