@@ -1,0 +1,5 @@
+cn2an
+easyocr
+hanlp
+paddlenlp
+sklearn

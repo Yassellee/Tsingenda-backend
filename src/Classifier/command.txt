@@ -1,0 +1,23 @@
+command to train the model
+python train.py \
+--dataset_dir "dataset" \
+--device "gpu" \
+--max_seq_length 128 \
+--batch_size 32 \
+--epochs 100
+
+command to evaluate the model
+python eval.py \
+--device "gpu" \
+--max_seq_length 128 \
+--batch_size 128 \
+--bad_case_path "./bad_case.txt" \
+--dataset_dir "dataset" \
+--params_path "./checkpoint" \
+
+command to predict
+python predict.py \
+--device "gpu" \
+--max_seq_length 128 \
+--batch_size 32 \
+--dataset_dir "dataset"

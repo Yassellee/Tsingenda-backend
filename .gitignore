@@ -128,3 +128,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# trained model
+model_config.json
+model_state.pdparams
+setting.txt
+special_tokens_map.json
+tokenizer_config.json
+vocab.txt
