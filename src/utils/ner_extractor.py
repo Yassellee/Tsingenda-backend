@@ -39,13 +39,17 @@ class NERExtractor:
         location_info = self.get_continuous_list(location_info)
         
         date_info = [(d, self.datefinder.parse_date(d)) for d in date_info]
-        time_info = [(t, self.datefinder.parse_time(t)) for t in time_info]
+        time_info = [(t, self.datefinder.parse_time(t, time_info, idx)) for idx, t in enumerate(time_info)]
         
-        return {
+        res = {
             "date": date_info,
             "time": time_info,
             "location": location_info
         }
+        
+        # print(res)
+        
+        return res
         
     def parse(self, text: Union[str, List[str]]):
         ner_info = self.do_ner(text)
@@ -71,3 +75,13 @@ class NERExtractor:
         res_list.append(p_word)
         
         return res_list
+
+if __name__ == "__main__":
+    instances = [
+        "二零一八年十月六日，小明参观了清华科技园，然后去清芬园吃了中午饭，那是在9点二十分。",
+        # "2021年HanLPv2.1为生产环境带来次世代最先进的多语种NLP技术。阿婆主来到北京立方庭参观自然语义科技公司。",
+        "他一直在清华学堂卷到了晚上10点",
+        "我们晚上9点20分在清华学堂不见不散。"
+    ]
+    extractor = NERExtractor()
+    print(extractor.parse(instances))

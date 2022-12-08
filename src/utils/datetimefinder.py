@@ -124,13 +124,17 @@ class DateTimeFinder:
             return parsed_datetime.date()
         return None
     
-    def parse_time(self, text: str) -> Optional[time]:
+    def parse_time(self, text: str, context: List[str]=None, idx: int=None) -> Optional[time]:
         parsed_time = self.parse_special(text)
         if parsed_time and isinstance(parsed_time, time):
             return parsed_time
         parsed_datetime = self.parse(text, self.PATTERN_TIME)
         if parsed_datetime:
-            return parsed_datetime.time()
+            res = parsed_datetime.time()
+            if context is not None and idx is not None:
+                if idx > 0 and context[idx-1] in ["下午", "晚上", "今晚", "傍晚"] and res.hour <= 12:
+                    res = res.replace(hour=res.hour+12)
+            return res
         return None
 
     def parse_datetime(self, text: str) -> Optional[datetime]:
@@ -153,7 +157,8 @@ class DateTimeFinder:
             "下午": time(15),
             "傍晚": time(17),
             "早晨": time(7),
-            "晚上": time(8)
+            "晚上": time(8),
+            "今晚": time(8)
         }
         
         return result_list.get(text, None)
