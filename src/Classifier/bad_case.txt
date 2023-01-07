@@ -1,0 +1,2 @@
+Confidence	Prediction	Label	Text
+0.68	1	0	水神榜：1. 小豆泥: 1842. : 923. : 874. : 765. default: 49[RLSBOT@2021/8/11 01:19:07]
